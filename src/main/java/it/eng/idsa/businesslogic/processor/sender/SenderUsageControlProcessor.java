@@ -139,7 +139,7 @@ public class SenderUsageControlProcessor implements Processor {
                 }
             }
             else {
-            	
+            	logger.info("Usage Control not applied - not ArtifactRequestMessage/ArtifactResponseMessage");
                  responseMultipartMessageString = MultipartMessageProcessor.
                          multipartMessagetoString(multipartMessage, false);
             	
