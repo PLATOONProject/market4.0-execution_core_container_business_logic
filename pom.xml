@@ -334,6 +334,13 @@
 		    <artifactId>junit-platform-launcher</artifactId>
 		    <scope>test</scope>
 		</dependency>
+			
+		<dependency>
+			<groupId>de.fraunhofer.iese.ids.odrl</groupId>
+			<artifactId>policy-library</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>
