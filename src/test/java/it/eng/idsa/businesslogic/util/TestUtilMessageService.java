@@ -203,4 +203,30 @@ public class TestUtilMessageService {
 		}
 		return null;
 	}
+	
+	public static Permission systemUsePermission(Action action, URI rightOperandReference, URI pipEndpoint) {
+		return new PermissionBuilder()
+				._action_(Util.asList(action))
+				._constraint_(Util.asList(
+						new ConstraintBuilder()
+						._leftOperand_(LeftOperand.SYSTEM)
+						._operator_(BinaryOperator.SAME_AS)
+						._rightOperandReference_(rightOperandReference)
+						._pipEndpoint_(pipEndpoint)
+						.build()
+						))
+				.build();
+	}
+	
+	public static Permission intervalRestrictDataUSage(Action action) {
+		return new PermissionBuilder()
+				._action_(Util.asList(action))
+				
+				
+				
+				
+				
+				
+				.build();
+	}
 }

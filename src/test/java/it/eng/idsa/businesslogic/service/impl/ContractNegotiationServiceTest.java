@@ -13,8 +13,6 @@ import de.fraunhofer.iais.eis.Action;
 import de.fraunhofer.iais.eis.BinaryOperator;
 import de.fraunhofer.iais.eis.Constraint;
 import de.fraunhofer.iais.eis.ContractAgreement;
-import de.fraunhofer.iais.eis.Duty;
-import de.fraunhofer.iais.eis.DutyBuilder;
 import de.fraunhofer.iais.eis.LeftOperand;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.Permission;
@@ -58,14 +56,12 @@ public class ContractNegotiationServiceTest {
 	}
 	
 	@Test
-	public void dutyTest() throws IOException {
-		Duty duty = new DutyBuilder()
-				._target_(TARGET)
-				._action_(Util.asList(Action.ANONYMIZE))
-				.build();
-		
-		
-		String dutyString = MultipartMessageProcessor.serializeToJsonLD(duty);
-		System.out.println(dutyString);
+	public void systemUsePermission() throws IOException {
+		System.out.println(MultipartMessageProcessor.serializeToJsonLD(
+				TestUtilMessageService.systemUsePermission(
+						Action.USE,
+						URI.create("http://systemUri.com"), 
+						URI.create("http://pipEndpoint.com"))
+				));
 	}
 }
