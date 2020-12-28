@@ -114,8 +114,9 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
 				._modelVersion_(informationModelVersion)
-				._recipientConnector_(asList(header.getIssuerConnector()))
-				._correlationMessage_(header.getId())
+				// Made recipientConnecotr and correlationMessage optional because Catalog CRUD logic
+				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
+				._correlationMessage_(header!=null?header.getId():URI.create(""))
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
 				.build();
 	}
