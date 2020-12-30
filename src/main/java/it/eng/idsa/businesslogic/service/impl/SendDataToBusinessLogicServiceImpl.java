@@ -240,4 +240,28 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		return response;
 	}
 
+	@Override
+	public CloseableHttpResponse sendCatalogData(String address, Map<String, Object> headerParts, String payload) {
+
+		logger.info("Forwarding Message: Catalog Data");
+		
+		// Set F address
+		HttpPost httpPost = new HttpPost(address);
+		
+		if (payload!= null) {
+			StringEntity payloadEntity = new StringEntity(payload,ContentType.APPLICATION_JSON);
+			httpPost.setEntity(payloadEntity);
+		}
+		addHeadersToHttpPost(headerParts, httpPost);
+		
+		CloseableHttpResponse response = null;
+		try {
+			response = getHttpClient().execute(httpPost);
+		} catch (IOException e) {
+			logger.error("Error while calling Receiver", e);
+			return null;
+		}
+		return response;
+	}
+
 }
