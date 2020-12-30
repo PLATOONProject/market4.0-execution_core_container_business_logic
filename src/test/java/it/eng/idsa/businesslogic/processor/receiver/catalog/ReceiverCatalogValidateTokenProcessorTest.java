@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import it.eng.idsa.businesslogic.processor.common.catalog.ValidateTokenForCatalogManagementProcessor;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -33,7 +34,7 @@ public class ReceiverCatalogValidateTokenProcessorTest {
 	private RejectionMessageService rejectionMessageService;
 
 	@InjectMocks
-	private ReceiverCatalogValidateTokenProcessor processor;
+	private ValidateTokenForCatalogManagementProcessor processor;
 
 	private Map<String, Object> headerHeaders;
 	private String token;
@@ -51,7 +52,7 @@ public class ReceiverCatalogValidateTokenProcessorTest {
 		when(exchange.getIn()).thenReturn(message);
 		when(message.getHeader("IDS-SecurityToken")).thenReturn(token);
 		when(dapsService.validateToken(token)).thenReturn(true);
-		when(exchange.getOut()).thenReturn(messageOut);
+		when(exchange.getMessage()).thenReturn(messageOut);
 
 		processor.process(exchange);
 
@@ -65,7 +66,7 @@ public class ReceiverCatalogValidateTokenProcessorTest {
 		when(exchange.getIn()).thenReturn(message);
 		when(message.getHeader("IDS-SecurityToken")).thenReturn(token);
 		when(dapsService.validateToken(token)).thenReturn(false);
-		when(exchange.getOut()).thenReturn(messageOut);
+		when(exchange.getMessage()).thenReturn(messageOut);
 
 		processor.process(exchange);
 
@@ -79,7 +80,7 @@ public class ReceiverCatalogValidateTokenProcessorTest {
 		when(exchange.getIn()).thenReturn(message);
 		when(message.getHeaders()).thenReturn(headerHeaders);
 		when(message.getBody(String.class)).thenReturn(bodyMessage);
-		when(exchange.getOut()).thenReturn(messageOut);
+		when(exchange.getMessage()).thenReturn(messageOut);
 
 		processor.process(exchange);
 

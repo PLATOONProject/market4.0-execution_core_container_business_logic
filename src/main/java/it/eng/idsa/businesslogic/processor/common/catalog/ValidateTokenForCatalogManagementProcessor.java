@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor.receiver.catalog;
+package it.eng.idsa.businesslogic.processor.common.catalog;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -6,33 +6,33 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
-public class ReceiverCatalogValidateTokenProcessor implements Processor {
+@Component
+public class ValidateTokenForCatalogManagementProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(ReceiverCatalogValidateTokenProcessor.class);
-
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
+	private static final Logger logger = LogManager.getLogger(ValidateTokenForCatalogManagementProcessor.class);
 
 	@Autowired
-	DapsService dapsService;
+	private DapsService dapsService;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
+	
+	@Value("${application.isEnabledDapsInteraction}")
+    private boolean isEnabledDapsInteraction;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
+		
 		if (!isEnabledDapsInteraction) {
-			exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-			exchange.getOut().setBody(exchange.getIn().getBody());
-			logger.info("Daps interaction not configured - continued with flow");
-			return;
-		}
+            logger.info("Daps interaction not configured - continued with flow");
+            return;
+        }
 
 		String token = (String) exchange.getIn().getHeader("IDS-SecurityToken");
 
@@ -47,9 +47,6 @@ public class ReceiverCatalogValidateTokenProcessor implements Processor {
 		}
 
 		exchange.getIn().removeHeader("IDS-SecurityToken");
-
-		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-		exchange.getOut().setBody(exchange.getIn().getBody());
 
 	}
 

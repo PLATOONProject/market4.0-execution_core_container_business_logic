@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.GetDapsTokenForCatalogManagementProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.ValidateTokenForCatalogManagementProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
@@ -26,6 +28,7 @@ import it.eng.idsa.businesslogic.processor.sender.SenderSendRegistrationRequestP
 import it.eng.idsa.businesslogic.processor.sender.SenderSendResponseToDataAppProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderValidateTokenProcessor;
+import it.eng.idsa.businesslogic.processor.sender.catalog.SenderCatalogRequestProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateDeleteMessageProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreatePassivateMessageProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateQueryBrokerMessageProcessor;
@@ -87,6 +90,9 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Autowired
 	SenderUsageControlProcessor senderUsageControlProcessor;
+	
+	@Autowired
+	SenderCatalogRequestProcessor catalogRequestProcessor;
 
 	@Autowired
 	CamelContext camelContext;
@@ -107,6 +113,12 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Autowired
 	private SenderProcessRegistrationResponseProcessor processRegistrationResponseSender;
+	
+	@Autowired
+	private GetDapsTokenForCatalogManagementProcessor getDapsTokenForCatalogManagementProcessor;
+	
+	@Autowired
+	private ValidateTokenForCatalogManagementProcessor validateTokenForCatalogManagementProcessor;
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
@@ -206,6 +218,11 @@ public class CamelRouteSender extends RouteBuilder {
 					.process(sendResponseToDataAppProcessor);
 			//@formatter:on
 		}
+		
+		from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/{catalog-id}")
+			.process(catalogRequestProcessor)
+			.process(getDapsTokenForCatalogManagementProcessor)
+			.process(validateTokenForCatalogManagementProcessor);
 	}
 
 }
