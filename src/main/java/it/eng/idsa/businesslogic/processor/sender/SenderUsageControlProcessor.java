@@ -74,12 +74,12 @@ public class SenderUsageControlProcessor implements Processor {
             return;
         }
         Message message = null;
-        String header = null;
+//        String header = null;
         String payload = null;
         MultipartMessage multipartMessageResponse=null;
         try {
 			MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
-			header = multipartMessage.getHeaderContentString();
+//			header = multipartMessage.getHeaderContentString();
 			payload = multipartMessage.getPayloadContent();
 			message = multipartMessage.getHeaderContent();
 			logger.info("from: " + exchange.getFromEndpoint());
@@ -114,7 +114,8 @@ public class SenderUsageControlProcessor implements Processor {
                     }
                     // Prepare Response
                      multipartMessageResponse = new MultipartMessageBuilder()
-                            .withHeaderContent(header)
+//                            .withHeaderContent(header)
+                            .withHeaderContent(message)
                             .withPayloadContent(extractPayloadFromJson(ucObj.getPayload()))
                             .build();
                 }

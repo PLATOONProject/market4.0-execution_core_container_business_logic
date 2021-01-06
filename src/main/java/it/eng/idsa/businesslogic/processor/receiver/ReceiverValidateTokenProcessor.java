@@ -83,7 +83,7 @@ public class ReceiverValidateTokenProcessor implements Processor {
 				.withPayloadContent(multipartMessage.getPayloadContent())
 				.withPayloadHeader(multipartMessage.getPayloadHeader()).build();
 		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
-		if (eccHttpSendRouter.equals("http-header")) {
+		if ("http-header".equals(eccHttpSendRouter)) {
 			exchange.getMessage().setBody(exchange.getMessage().getBody());
 		}else {
 			exchange.getMessage().setBody(multipartMessageParts);

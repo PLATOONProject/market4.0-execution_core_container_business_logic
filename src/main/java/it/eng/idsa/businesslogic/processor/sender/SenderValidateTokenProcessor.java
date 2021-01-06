@@ -30,8 +30,8 @@ public class SenderValidateTokenProcessor implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(SenderValidateTokenProcessor.class);
 	
-	@Value("${application.eccHttpSendRouter}")
-	private String eccHttpSendRouter;
+//	@Value("${application.eccHttpSendRouter}")
+//	private String eccHttpSendRouter;
 	
 	@Value("${application.isEnabledDapsInteraction}")
     private boolean isEnabledDapsInteraction;
@@ -81,13 +81,13 @@ public class SenderValidateTokenProcessor implements Processor {
 				.withPayloadContent(multipartMessage.getPayloadContent())
 				.withPayloadHeader(multipartMessage.getPayloadHeader()).build();
 		exchange.getMessage().setHeaders(headersParts);
-		if (eccHttpSendRouter.equals("http-header")) {
-			exchange.getMessage().setBody(multipartMessage);
-		}else {
-			// not used
-//			multipartMessageParts.put("isTokenValid", isTokenValid);
-			exchange.getMessage().setBody(multipartMessage);
-		}
+		exchange.getMessage().setBody(multipartMessage);
+//		if ("http-header".equals(eccHttpSendRouter)) {
+//		} else {
+//			// not used
+////			multipartMessageParts.put("isTokenValid", isTokenValid);
+//			exchange.getMessage().setBody(multipartMessage);
+//		}
 	}
 
 }
