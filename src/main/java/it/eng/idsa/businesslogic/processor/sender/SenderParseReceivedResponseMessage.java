@@ -59,7 +59,7 @@ public class SenderParseReceivedResponseMessage implements Processor {
 		MultipartMessage multipartMessage = null;
 		String token = null;
 
-		if (eccHttpSendRouter.equals("http-header")) {
+		if ("http-header".equals(eccHttpSendRouter)) {
 			payload = exchange.getMessage().getBody(String.class);
 			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
@@ -70,16 +70,12 @@ public class SenderParseReceivedResponseMessage implements Processor {
 			multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(header)
 					.withPayloadContent(payload)
-					.withToken(token).build();
+					.withToken(token)
+					.build();
 
 		} else {
-			if (!headersParts.containsKey("header")) {
+			if (!headersParts.containsKey("header") || headersParts.get("header") == null) {
 				logger.error("Multipart message header is missing");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
-			}
-
-			if (headersParts.get("header") == null) {
-				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
@@ -102,8 +98,11 @@ public class SenderParseReceivedResponseMessage implements Processor {
 				if (isEnabledDapsInteraction) {
 					token = multipartMessageService.getToken(message);
 				}
-				multipartMessage = new MultipartMessageBuilder().withHeaderContent(header).withPayloadContent(payload)
-						.withToken(token).build();
+				multipartMessage = new MultipartMessageBuilder()
+						.withHeaderContent(header)
+						.withPayloadContent(payload)
+						.withToken(token)
+						.build();
 			} catch (Exception e) {
 				logger.error("Error parsing multipart message:", e);
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);

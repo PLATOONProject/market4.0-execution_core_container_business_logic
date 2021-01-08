@@ -78,13 +78,16 @@ public class SenderGetTokenFromDapsProcessor implements Processor {
 		}
 
 //		logger.info("token=" + token);
-		if (eccHttpSendRouter.equals("http-header")) {
+		if ("http-header".equals(eccHttpSendRouter)) {
 			// TODO move this to SendDataToBussinessLogicServiceImpl
-			multipartMessage = new MultipartMessageBuilder().withHttpHeader(multipartMessage.getHttpHeaders())
+			multipartMessage = new MultipartMessageBuilder()
+					.withHttpHeader(multipartMessage.getHttpHeaders())
 					.withHeaderHeader(multipartMessage.getHeaderHeader())
 					.withHeaderContent(multipartMessage.getHeaderContent())
 					.withPayloadHeader(multipartMessage.getPayloadHeader())
-					.withPayloadContent(multipartMessage.getPayloadContent()).withToken(token).build();
+					.withPayloadContent(multipartMessage.getPayloadContent())
+					.withToken(token)
+					.build();
 		} else {
 			String messageStringWithToken = multipartMessageService.addToken(message, token);
 			logger.info("messageStringWithToken=\n" + messageStringWithToken);

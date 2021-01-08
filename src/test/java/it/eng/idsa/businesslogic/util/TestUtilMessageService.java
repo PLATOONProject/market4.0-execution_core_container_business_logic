@@ -23,6 +23,8 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 public class TestUtilMessageService {
 
 
+	public static final String TOKEN_VALUE = "DummyTokenValue";
+
 	public static URI REQUESTED_ARTIFACT = URI.create("http://w3id.org/engrd/connector/artifact/1");
 
 	public static URI ISSUER_CONNECTOR = URI.create("http://w3id.org/engrd/connector");
@@ -79,7 +81,7 @@ public class TestUtilMessageService {
 	public static DynamicAttributeToken getDynamicAttributeToken() {
 		return new DynamicAttributeTokenBuilder()
 				._tokenFormat_(TokenFormat.JWT)
-				._tokenValue_("DummyTokenValue")
+				._tokenValue_(TOKEN_VALUE)
 				.build();		
 	}
 	
