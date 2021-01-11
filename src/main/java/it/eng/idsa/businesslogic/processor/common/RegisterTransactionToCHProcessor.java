@@ -46,7 +46,7 @@ public class RegisterTransactionToCHProcessor implements Processor {
 			logger.info("Failed to register to clearing house");
 		}
 		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
-		exchange.getMessage().setBody(exchange.getMessage().getBody());
+		exchange.getMessage().setBody(multipartMessage);
 	}
 
 }
