@@ -177,7 +177,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			logger.info("status code of the response message is: " + statusCode);
 			if (statusCode >= 300) {
 				if (statusCode == 404) {
-					logger.info("...communication error - bad forwardTo URL " + forwardTo);
+					logger.info("...communication error - data not found" + forwardTo);
 					rejectionMessageService
 							.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
 				}
@@ -189,9 +189,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 				
 				//TODO make the MultipartMessage here or in the ProducerParseReceivedResponseMessage
 				exchange.getMessage().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
-				if (eccHttpSendRouter.equals("http-header")) {
+				if ("http-header".equals(eccHttpSendRouter)) {
 					exchange.getMessage().setBody(responseString);
-				}else {
+				} else {
 					exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
 					exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
 
