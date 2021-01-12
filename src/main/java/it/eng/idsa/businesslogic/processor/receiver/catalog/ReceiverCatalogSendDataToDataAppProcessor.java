@@ -11,6 +11,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
@@ -18,6 +19,7 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
+@Component
 public class ReceiverCatalogSendDataToDataAppProcessor implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(ReceiverCatalogSendDataToDataAppProcessor.class);
@@ -34,8 +36,8 @@ public class ReceiverCatalogSendDataToDataAppProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		Map<String, Object> headerParts = exchange.getIn().getHeaders();
-		String payload = exchange.getIn().getBody(String.class);
+		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
+		String payload = exchange.getMessage().getBody(String.class);
 
 		// Get header, payload and message
 		Message message = null;
@@ -73,8 +75,8 @@ public class ReceiverCatalogSendDataToDataAppProcessor implements Processor {
 				logger.info("data sent to destination: " + openApiDataAppAddress);
 //				logger.info("Successful response from DataApp: " + responseString);
 
-				exchange.getOut().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
-				exchange.getOut().setBody(responseString);
+				exchange.getMessage().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
+				exchange.getMessage().setBody(responseString);
 			}
 
 		}

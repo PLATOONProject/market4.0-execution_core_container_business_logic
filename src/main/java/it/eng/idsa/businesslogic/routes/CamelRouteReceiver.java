@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.GetDapsTokenForCatalogManagementProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.ValidateTokenForCatalogManagementProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverExceptionMultiPartMessageProcessor;
@@ -22,6 +24,7 @@ import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToDataAppPro
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverWebSocketSendDataToDataAppProcessor;
+import it.eng.idsa.businesslogic.processor.receiver.catalog.ReceiverCatalogSendDataToDataAppProcessor;
 
 /**
  * 
@@ -73,6 +76,15 @@ public class CamelRouteReceiver extends RouteBuilder {
 	@Autowired
 	ReceiverUsageControlProcessor receiverUsageControlProcessor;
 
+	@Autowired
+	private ValidateTokenForCatalogManagementProcessor validateTokenForCatalogManagementProcessor;
+	
+	@Autowired
+	private GetDapsTokenForCatalogManagementProcessor getDapsTokenForCatalogManagementProcessor;
+	
+	@Autowired
+	private ReceiverCatalogSendDataToDataAppProcessor catalogSendDataToDataAppProcessor;
+	
 	@Autowired
 	CamelContext camelContext;
 
@@ -139,6 +151,11 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.process(sendDataToBusinessLogicProcessor);
 			//@formatter:on
 		}
+		
+		from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/{catalog-id}")
+				.process(validateTokenForCatalogManagementProcessor)
+				.process(catalogSendDataToDataAppProcessor)
+				.process(getDapsTokenForCatalogManagementProcessor);
 
 	}
 }
