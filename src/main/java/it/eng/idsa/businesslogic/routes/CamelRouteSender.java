@@ -29,6 +29,7 @@ import it.eng.idsa.businesslogic.processor.sender.SenderSendResponseToDataAppPro
 import it.eng.idsa.businesslogic.processor.sender.SenderUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.sender.catalog.SenderCatalogRequestProcessor;
+import it.eng.idsa.businesslogic.processor.sender.catalog.SenderCatalogSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateDeleteMessageProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreatePassivateMessageProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateQueryBrokerMessageProcessor;
@@ -93,6 +94,9 @@ public class CamelRouteSender extends RouteBuilder {
 	
 	@Autowired
 	SenderCatalogRequestProcessor catalogRequestProcessor;
+	
+	@Autowired
+	private SenderCatalogSendDataToBusinessLogicProcessor catalogSendDataToDataAppProcessor;
 
 	@Autowired
 	CamelContext camelContext;
@@ -222,6 +226,7 @@ public class CamelRouteSender extends RouteBuilder {
 		from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/{catalog-id}")
 			.process(catalogRequestProcessor)
 			.process(getDapsTokenForCatalogManagementProcessor)
+			.process(catalogSendDataToDataAppProcessor)
 			.process(validateTokenForCatalogManagementProcessor);
 	}
 
