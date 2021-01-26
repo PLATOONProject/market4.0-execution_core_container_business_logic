@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor.sender.catalog;
+package it.eng.idsa.businesslogic.processor.common.catalog;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,14 +15,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import it.eng.idsa.businesslogic.processor.common.catalog.CatalogRequestProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.IDSHeaders;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
-public class SenderCatalogRequestProcessorTest {
+public class CatalogRequestProcessorTest {
 	
 	@InjectMocks
-	private SenderCatalogRequestProcessor senderCatalogRequestProcessor;
+	private CatalogRequestProcessor senderCatalogRequestProcessor;
 	
 	@Mock
 	private Exchange exchange;

@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
-import it.eng.idsa.businesslogic.processor.common.catalog.GetDapsTokenForCatalogManagementProcessor;
-import it.eng.idsa.businesslogic.processor.common.catalog.ValidateTokenForCatalogManagementProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.CatalogGetDapsTokenForProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.CatalogRequestProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.CatalogValidateTokenForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
 import it.eng.idsa.businesslogic.processor.sender.SenderFileRecreatorProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderGetTokenFromDapsProcessor;
@@ -28,7 +28,6 @@ import it.eng.idsa.businesslogic.processor.sender.SenderSendRegistrationRequestP
 import it.eng.idsa.businesslogic.processor.sender.SenderSendResponseToDataAppProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderValidateTokenProcessor;
-import it.eng.idsa.businesslogic.processor.sender.catalog.SenderCatalogRequestProcessor;
 import it.eng.idsa.businesslogic.processor.sender.catalog.SenderCatalogSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateDeleteMessageProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreatePassivateMessageProcessor;
@@ -51,55 +50,49 @@ public class CamelRouteSender extends RouteBuilder {
 	private ApplicationConfiguration configuration;
 
 	@Autowired(required = false)
-	SenderFileRecreatorProcessor fileRecreatorProcessor;
+	private SenderFileRecreatorProcessor fileRecreatorProcessor;
 
 	@Autowired
-	SenderParseReceivedDataProcessorBodyBinary parseReceivedDataProcessorBodyBinary;
+	private SenderParseReceivedDataProcessorBodyBinary parseReceivedDataProcessorBodyBinary;
 
 	@Autowired
-	SenderParseReceivedDataProcessorBodyFormData parseReceivedDataProcessorBodyFormData;
+	private SenderParseReceivedDataProcessorBodyFormData parseReceivedDataProcessorBodyFormData;
 	
 	@Autowired
-	SenderParseReceivedDataProcessorHttpHeader parseReceivedDataProcessorHttpHeader;
+	private SenderParseReceivedDataProcessorHttpHeader parseReceivedDataProcessorHttpHeader;
 
 	@Autowired
-	SenderGetTokenFromDapsProcessor getTokenFromDapsProcessor;
+	private SenderGetTokenFromDapsProcessor getTokenFromDapsProcessor;
 
 	@Autowired
-	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
+	private RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
 
 	@Autowired
-	SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
+	private SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
 
 	@Autowired
-	SenderParseReceivedResponseMessage parseReceivedResponseMessage;
+	private SenderParseReceivedResponseMessage parseReceivedResponseMessage;
 
 	@Autowired
-	SenderValidateTokenProcessor validateTokenProcessor;
+	private SenderValidateTokenProcessor validateTokenProcessor;
 
 	@Autowired
-	SenderSendResponseToDataAppProcessor sendResponseToDataAppProcessor;
+	private SenderSendResponseToDataAppProcessor sendResponseToDataAppProcessor;
 
 	@Autowired
-	ExceptionProcessorSender processorException;
+	private ExceptionProcessorSender processorException;
 
 	@Autowired
-	SenderParseReceivedDataFromDAppProcessorBodyBinary parseReceivedDataFromDAppProcessorBodyBinary;
+	private SenderParseReceivedDataFromDAppProcessorBodyBinary parseReceivedDataFromDAppProcessorBodyBinary;
 
 	@Autowired
-	ExceptionProcessorReceiver exceptionProcessorReceiver;
-
-	@Autowired
-	SenderUsageControlProcessor senderUsageControlProcessor;
+	private SenderUsageControlProcessor senderUsageControlProcessor;
 	
 	@Autowired
-	SenderCatalogRequestProcessor catalogRequestProcessor;
-	
-	@Autowired
-	private SenderCatalogSendDataToBusinessLogicProcessor catalogSendDataToDataAppProcessor;
+	private CatalogRequestProcessor catalogRequestProcessor;
 
 	@Autowired
-	CamelContext camelContext;
+	private	CamelContext camelContext;
 	
 	@Autowired
 	private SenderCreateRegistrationMessageProcessor createRegistratioMessageSender;
@@ -119,13 +112,17 @@ public class CamelRouteSender extends RouteBuilder {
 	private SenderProcessRegistrationResponseProcessor processRegistrationResponseSender;
 	
 	@Autowired
-	private GetDapsTokenForCatalogManagementProcessor getDapsTokenForCatalogManagementProcessor;
+	private CatalogGetDapsTokenForProcessor getDapsTokenForCatalogManagementProcessor;
 	
 	@Autowired
-	private ValidateTokenForCatalogManagementProcessor validateTokenForCatalogManagementProcessor;
+	private CatalogValidateTokenForProcessor validateTokenForCatalogManagementProcessor;
+	
+	@Autowired
+	private SenderCatalogSendDataToBusinessLogicProcessor senderCatalogSendDataToBusinessLogicProcessor;
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
+
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -226,7 +223,7 @@ public class CamelRouteSender extends RouteBuilder {
 		from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/{catalog-id}")
 			.process(catalogRequestProcessor)
 			.process(getDapsTokenForCatalogManagementProcessor)
-			.process(catalogSendDataToDataAppProcessor)
+			.process(senderCatalogSendDataToBusinessLogicProcessor)
 			.process(validateTokenForCatalogManagementProcessor);
 	}
 

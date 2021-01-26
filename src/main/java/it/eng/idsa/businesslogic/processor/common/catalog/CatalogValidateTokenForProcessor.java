@@ -13,15 +13,15 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 @Component
-public class GetDapsTokenForCatalogManagementProcessor implements Processor {
+public class CatalogValidateTokenForProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(GetDapsTokenForCatalogManagementProcessor.class);
-
-	@Autowired
-	private RejectionMessageService rejectionMessageService;
+	private static final Logger logger = LogManager.getLogger(CatalogValidateTokenForProcessor.class);
 
 	@Autowired
 	private DapsService dapsService;
+
+	@Autowired
+	private RejectionMessageService rejectionMessageService;
 	
 	@Value("${application.isEnabledDapsInteraction}")
     private boolean isEnabledDapsInteraction;
@@ -33,20 +33,20 @@ public class GetDapsTokenForCatalogManagementProcessor implements Processor {
             logger.info("Daps interaction not configured - continued with flow");
             return;
         }
-		String token = dapsService.getJwtToken();
 
-		if (token == null) {
-			logger.error("Can not get the token from the DAPS server");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					null);
+		String token = (String) exchange.getIn().getHeader("IDS-SecurityToken");
+
+		logger.info("token: {}", token);
+
+		// Check is "token" valid
+		boolean isTokenValid = dapsService.validateToken(token);
+
+		logger.info("is token valid: " + isTokenValid);
+		if (!isTokenValid) {
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, null);
 		}
 
-		if (token.isEmpty()) {
-			logger.error("The token from the DAPS server is empty");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, null);
-		}
-
-		exchange.getMessage().setHeader("IDS-SecurityToken", token);
+		exchange.getIn().removeHeader("IDS-SecurityToken");
 
 	}
 

@@ -4,9 +4,19 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
+import org.apache.camel.Exchange;
+import org.apache.camel.component.http.HttpGetWithBodyMethod;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -179,15 +189,15 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		return httpClient;
 	}
 
-	private void addHeadersToHttpPost(Map<String, Object> headesParts, HttpPost httpPost) {
+	private void addHeadersToHttpPost(Map<String, Object> headesParts, HttpRequestBase httpRequest) {
 		headerCleaner.removeTechnicalHeaders(headesParts);
 
 		headesParts.forEach((name, value) -> {
 			if (!name.equals("Content-Length") && !name.equals("Content-Type")) {
 				if (value != null) {
-					httpPost.setHeader(name, value.toString());
+					httpRequest.setHeader(name, value.toString());
 				} else {
-					httpPost.setHeader(name, null);
+					httpRequest.setHeader(name, null);
 				}
 
 			}
@@ -245,17 +255,57 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		logger.info("Forwarding Message: Catalog Data");
 		
 		// Set F address
-		HttpPost httpPost = new HttpPost(address);
+		HttpRequestBase baseRequest = null;
+		
+		HttpEntityEnclosingRequestBase entityRequest = null;
+		
 		
 		if (payload!= null) {
 			StringEntity payloadEntity = new StringEntity(payload,ContentType.APPLICATION_JSON);
-			httpPost.setEntity(payloadEntity);
+			switch ((String)headerParts.get(Exchange.HTTP_METHOD)) {
+			case "GET":
+				entityRequest = new HttpGetWithBodyMethod(address, payloadEntity);
+				break;
+			case "POST":
+				entityRequest = new HttpPost(address);
+				entityRequest.setEntity(payloadEntity);
+				break;
+			case "PUT":
+				entityRequest = new HttpPut(address);
+				entityRequest.setEntity(payloadEntity);
+				break;
+			case "PATCH":
+				entityRequest = new HttpPatch(address);
+				entityRequest.setEntity(payloadEntity);
+				break;
+			default:
+				break;
+			}
+			
+			baseRequest = entityRequest;
+		}else {
+			switch ((String)headerParts.get(Exchange.HTTP_METHOD)) {
+			case "GET":
+				baseRequest = new HttpGet(address);
+				break;
+			case "DELETE":
+				baseRequest = new HttpDelete(address);
+				break;
+			case "OPTIONS":
+				baseRequest = new HttpOptions(address);
+				break;
+			case "HEAD":
+				baseRequest = new HttpHead(address);
+				break;
+			default:
+				break;
+			}
 		}
-		addHeadersToHttpPost(headerParts, httpPost);
+		addHeadersToHttpPost(headerParts, baseRequest);
 		
 		CloseableHttpResponse response = null;
 		try {
-			response = getHttpClient().execute(httpPost);
+			response = getHttpClient().execute(baseRequest);
 		} catch (IOException e) {
 			logger.error("Error while calling Receiver", e);
 			return null;

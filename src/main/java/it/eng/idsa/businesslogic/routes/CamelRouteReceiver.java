@@ -10,8 +10,9 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
-import it.eng.idsa.businesslogic.processor.common.catalog.GetDapsTokenForCatalogManagementProcessor;
-import it.eng.idsa.businesslogic.processor.common.catalog.ValidateTokenForCatalogManagementProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.CatalogRequestProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.CatalogGetDapsTokenForProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.CatalogValidateTokenForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverExceptionMultiPartMessageProcessor;
@@ -41,59 +42,62 @@ public class CamelRouteReceiver extends RouteBuilder {
 	private ApplicationConfiguration configuration;
 
 	@Autowired(required = false)
-	ReceiverFileRecreatorProcessor fileRecreatorProcessor;
+	private ReceiverFileRecreatorProcessor fileRecreatorProcessor;
 	
 	@Autowired
-	ReceiverParseReceivedConnectorRequestProcessor connectorRequestProcessor;
+	private ReceiverParseReceivedConnectorRequestProcessor connectorRequestProcessor;
 
 	@Autowired
-	ReceiverValidateTokenProcessor validateTokenProcessor;
+	private ReceiverValidateTokenProcessor validateTokenProcessor;
 	
 	@Autowired
-	ReceiverMultiPartMessageProcessor multiPartMessageProcessor;
+	private	ReceiverMultiPartMessageProcessor multiPartMessageProcessor;
 	
 	@Autowired
-	ReceiverSendDataToDataAppProcessor sendDataToDataAppProcessor;
+	private	ReceiverSendDataToDataAppProcessor sendDataToDataAppProcessor;
 	
 	@Autowired
-	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
+	private	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
 	
 	@Autowired
-	ExceptionProcessorReceiver exceptionProcessorReceiver;
+	private	ExceptionProcessorReceiver exceptionProcessorReceiver;
 	
 	@Autowired
-	ReceiverGetTokenFromDapsProcessor getTokenFromDapsProcessor;
+	private	ReceiverGetTokenFromDapsProcessor getTokenFromDapsProcessor;
 	
 	@Autowired
-	ReceiverSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
+	private	ReceiverSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
 	
 	@Autowired
-	ReceiverExceptionMultiPartMessageProcessor exceptionMultiPartMessageProcessor;
+	private	ReceiverExceptionMultiPartMessageProcessor exceptionMultiPartMessageProcessor;
 
 	@Autowired
-	ReceiverWebSocketSendDataToDataAppProcessor sendDataToDataAppProcessorOverWS;
+	private	ReceiverWebSocketSendDataToDataAppProcessor sendDataToDataAppProcessorOverWS;
 
 	@Autowired
-	ReceiverUsageControlProcessor receiverUsageControlProcessor;
+	private	ReceiverUsageControlProcessor receiverUsageControlProcessor;
 
 	@Autowired
-	private ValidateTokenForCatalogManagementProcessor validateTokenForCatalogManagementProcessor;
+	private CatalogValidateTokenForProcessor validateTokenForCatalogManagementProcessor;
 	
 	@Autowired
-	private GetDapsTokenForCatalogManagementProcessor getDapsTokenForCatalogManagementProcessor;
+	private CatalogGetDapsTokenForProcessor getDapsTokenForCatalogManagementProcessor;
 	
 	@Autowired
 	private ReceiverCatalogSendDataToDataAppProcessor catalogSendDataToDataAppProcessor;
 	
 	@Autowired
-	CamelContext camelContext;
+	private	CatalogRequestProcessor catalogRequestProcessor;
+	
+	@Autowired
+	private	CamelContext camelContext;
 
 	@Value("${application.idscp.isEnabled}")
 	private boolean isEnabledIdscp;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
@@ -153,6 +157,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		}
 		
 		from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/{catalog-id}")
+				.process(catalogRequestProcessor)
 				.process(validateTokenForCatalogManagementProcessor)
 				.process(catalogSendDataToDataAppProcessor)
 				.process(getDapsTokenForCatalogManagementProcessor);

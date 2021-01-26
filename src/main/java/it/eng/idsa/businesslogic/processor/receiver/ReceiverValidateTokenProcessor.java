@@ -1,7 +1,5 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
-import java.util.Map;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
@@ -58,8 +56,6 @@ public class ReceiverValidateTokenProcessor implements Processor {
 		
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
-		Map<String, Object> multipartMessageParts = null;
-		
 		String token = multipartMessage.getToken();
 		Message message = multipartMessage.getHeaderContent();
 			
@@ -83,11 +79,6 @@ public class ReceiverValidateTokenProcessor implements Processor {
 				.withPayloadContent(multipartMessage.getPayloadContent())
 				.withPayloadHeader(multipartMessage.getPayloadHeader()).build();
 		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
-		if ("http-header".equals(eccHttpSendRouter)) {
-			exchange.getMessage().setBody(exchange.getMessage().getBody());
-		}else {
-			exchange.getMessage().setBody(multipartMessageParts);
-		}
 		exchange.getMessage().setBody(multipartMessage);
 	}
 

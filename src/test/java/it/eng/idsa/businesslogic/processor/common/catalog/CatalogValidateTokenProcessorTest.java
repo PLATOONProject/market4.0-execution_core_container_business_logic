@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor.receiver.catalog;
+package it.eng.idsa.businesslogic.processor.common.catalog;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,12 +15,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import it.eng.idsa.businesslogic.processor.common.catalog.ValidateTokenForCatalogManagementProcessor;
+import it.eng.idsa.businesslogic.processor.common.catalog.CatalogValidateTokenForProcessor;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
-public class ReceiverCatalogValidateTokenProcessorTest {
+public class CatalogValidateTokenProcessorTest {
 
 	@Mock
 	private Exchange exchange;
@@ -34,7 +34,7 @@ public class ReceiverCatalogValidateTokenProcessorTest {
 	private RejectionMessageService rejectionMessageService;
 
 	@InjectMocks
-	private ValidateTokenForCatalogManagementProcessor processor;
+	private CatalogValidateTokenForProcessor processor;
 
 	private Map<String, Object> headerHeaders;
 	private String token;
