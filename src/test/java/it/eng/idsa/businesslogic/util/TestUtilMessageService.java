@@ -59,7 +59,7 @@ public class TestUtilMessageService {
 		serializer = new Serializer();
 	}
 
-	private static XMLGregorianCalendar ISSUED;
+	public static XMLGregorianCalendar ISSUED;
 	static {
 		try {
 			ISSUED = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar());
@@ -120,7 +120,7 @@ public class TestUtilMessageService {
 		return new ContractAgreementBuilder()
 				._provider_(PROVIDER)
 				._consumer_(CONSUMER)
-				._contractDocument_(getContractDocument())
+//				._contractDocument_(getContractDocument())
 				._permission_(permissions)
 				.build();
 	}
@@ -166,8 +166,8 @@ public class TestUtilMessageService {
 				._leftOperand_(leftOperand)
 				._operator_(operator)
 				._rightOperand_(rightOperand)
-				._pipEndpoint_(URI.create("pipEndpoint"))
-				._unit_(URI.create("http://dbpedia.org/resource/Euro"))
+//				._pipEndpoint_(URI.create("pipEndpoint"))
+//				._unit_(URI.create("http://dbpedia.org/resource/Euro"))
 				.build();
 		return constraint;
 	}

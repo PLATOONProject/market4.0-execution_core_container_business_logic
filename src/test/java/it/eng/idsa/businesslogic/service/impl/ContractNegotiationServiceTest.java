@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import de.fraunhofer.iais.eis.Action;
 import de.fraunhofer.iais.eis.BinaryOperator;
 import de.fraunhofer.iais.eis.Constraint;
+import de.fraunhofer.iais.eis.ConstraintBuilder;
 import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.DataRepresentationBuilder;
 import de.fraunhofer.iais.eis.InstantBuilder;
@@ -48,19 +49,31 @@ public class ContractNegotiationServiceTest {
 	
 	private Message contractAgreementMessage;
 	private ContractAgreement contractAgreement;
+	private Interval interval;
 	
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, DatatypeConfigurationException, URISyntaxException {
 		contractAgreementMessage = TestUtilMessageService.getContractAgreementMessage();
 		
-		Constraint constraint = TestUtilMessageService.generateConstraint(LeftOperand.POLICY_EVALUATION_TIME, 
-				BinaryOperator.EQ, new RdfResource("2020-12-31T23:59:59.000+00:00", URI.create("xsd:datetime")));
-		Constraint constraint2 = TestUtilMessageService.generateConstraint(LeftOperand.PAY_AMOUNT, 
-				BinaryOperator.EQ, new RdfResource("12", URI.create("http://www.w3.org/2001/XMLSchema#double")));
+		interval = new IntervalBuilder()
+				._begin_(new InstantBuilder()._dateTime_(TestUtilMessageService.ISSUED).build())
+				._end_(new InstantBuilder()._dateTime_(TestUtilMessageService.ISSUED).build())
+				.build();
+		Constraint constraint = TestUtilMessageService.generateConstraint(
+				LeftOperand.POLICY_EVALUATION_TIME, 
+				BinaryOperator.TEMPORAL_EQUALS, 
+				new RdfResource("2020-12-31T23:59:59.000+00:00", URI.create("xsd:datetimestamp"))
+				);
+		Constraint constraint2 = TestUtilMessageService.generateConstraint(
+				LeftOperand.POLICY_EVALUATION_TIME, 
+				BinaryOperator.BEFORE, 
+				new RdfResource("2021-12-31T23:59:59.000+00:00", URI.create("xsd:datetimestamp")));
+//		Constraint constraint2 = TestUtilMessageService.generateConstraint(LeftOperand.PAY_AMOUNT, 
+//				BinaryOperator.EQ, new RdfResource("12", URI.create("http://www.w3.org/2001/XMLSchema#double")));
 		Permission permission = TestUtilMessageService.generatePermission(TARGET, Action.USE, Util.asList(constraint, constraint2));
-		Permission permission2 = TestUtilMessageService.generatePermission(TARGET, Action.ANONYMIZE, Util.asList(constraint2));
+//		Permission permission2 = TestUtilMessageService.generatePermission(TARGET, Action.ANONYMIZE, Util.asList(constraint2));
 
-		contractAgreement = TestUtilMessageService.getContractAgreement(Util.asList(permission, permission2));
+		contractAgreement = TestUtilMessageService.getContractAgreement(Util.asList(permission));// , permission2
 		
 		service = new ContractNegotiationServiceImpl();
 	}
@@ -68,8 +81,11 @@ public class ContractNegotiationServiceTest {
 	@Test
 	public void testContractNegotiation() throws IOException {
 //		service.processContractAgreement(contractAgreementMessage, contractAgreement);
-		String permissionString = MultipartMessageProcessor.serializeToPlainJson(contractAgreement.getPermission());
-		System.out.println(permissionString);
+//		String permissionString = MultipartMessageProcessor.serializeToPlainJson(contractAgreement.getPermission());
+//		System.out.println(permissionString); 
+//		String ca = MultipartMessageProcessor.serializeToPlainJson(contractAgreement);
+		String caLD = MultipartMessageProcessor.serializeToJsonLD(contractAgreement);
+		System.out.println(caLD);
 	}
 	
 	@Test
@@ -229,6 +245,90 @@ public class ContractNegotiationServiceTest {
 		Serializer serializer = new Serializer();
 		Resource resource = serializer.deserialize(resourceString, Resource.class);
 		assertNotNull(resource);
+	}
+	
+	
+	@Test
+	public void igor( ) throws IOException {
+		String contractAgreement = " {    \r\n" + 
+				"   \"@context\": {\r\n" + 
+				"      \"ids\":\"https://urldefense.com/v3/__https://w3id.org/idsa/core/__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8r4hLIKpi$ \",\r\n" + 
+				"      \"idsc\" : \"https://urldefense.com/v3/__https://w3id.org/idsa/code/__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8r7G4Vsfn$ \"\r\n" + 
+				"   },    \r\n" + 
+				"  \"@type\": \"ids:ContractAgreement\",    \r\n" + 
+				"  \"@id\": \"https://urldefense.com/v3/__https://w3id.org/idsa/autogen/contract/complex-policy__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8r6_BZzZ5$ \",    \r\n" + 
+				"  \"profile\": \"https://urldefense.com/v3/__http://example.com/ids-profile__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8r2P8qCdf$ \",    \r\n" + 
+				"  \"ids:target\": {\r\n" + 
+				"      \"@id\":\"https://urldefense.com/v3/__http://mdm-connector.ids.isst.fraunhofer.de/artifact/15__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8r_pyBRpG$ \"\r\n" + 
+				"   },    \r\n" + 
+				"  \"ids:provider\": \"https://urldefense.com/v3/__http://example.com/party/my-party__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8rzPEpaMm$ \",    \r\n" + 
+				"  \"ids:consumer\": \"https://urldefense.com/v3/__http://example.com/party/consumer-party__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8r-4U2UMb$ \",    \r\n" + 
+				"  \"ids:permission\": [{    \r\n" + 
+				"\"@type\" : \"ids:Permission\"," +
+				"      \"ids:action\": [{\r\n" + 
+				"        \"@id\":\"idsc:USE\"\r\n" + 
+				"      }],     \r\n" + 
+				"      \"ids:constraint\": [{    \r\n" + 
+				"        \"@type\":\"ids:Constraint\",  \r\n" + 
+				"        \"ids:leftOperand\": \"https://urldefense.com/v3/__https://w3id.org/idsa/core/absoluteSpatialPosition__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8r_-voThj$ \",  \r\n" + 
+				"        \"ids:operator\": \"idsc:EQ\",  \r\n" + 
+				"        \"ids:rightOperand\": { \"@value\": \"DE\", \"@type\": \"xsd:anyURI\"        }, \r\n" + 
+				"        \"ids:pipEndpoint\": { \"@id\": \"https//pip.com/absolutespatialposition\" } \r\n" + 
+				"      }     \r\n" + 
+				",{    \r\n" + 
+				"        \"@type\":\"ids:Constraint\",  \r\n" + 
+				"        \"ids:leftOperand\": \"ids:system\",  \r\n" + 
+				"        \"ids:operator\": \"idsc:EQ\",  \r\n" + 
+				"        \"ids:rightOperand\": { \"@value\": \"Trusted\", \"@type\": \"xsd:anyURI\"        }, \r\n" + 
+				"        \"ids:pipEndpoint\": { \"@id\": \"https//pip.com/system\" } \r\n" + 
+				"      }     \r\n" + 
+				",{    \r\n" + 
+				"        \"@type\":\"ids:Constraint\",  \r\n" + 
+				"        \"ids:leftOperand\": \"https://urldefense.com/v3/__https://w3id.org/idsa/core/purpose__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8ryqR1Qq0$ \",  \r\n" + 
+				"        \"ids:operator\": \"idsc:EQ\",  \r\n" + 
+				"        \"ids:rightOperand\": { \"@value\": \"https://urldefense.com/v3/__http://example.com/ids-purpose:Marketing__;!!LQkDIss!BU6_XKzId9burwjs-TBHxs_nNh4a_r5ancnXDT7UsboZv-xT-u8vslO8r7-9J8Uo$ \", \"@type\": \"xsd:anyURI\"        }, \r\n" + 
+				"        \"ids:pipEndpoint\": { \"@id\": \"https//pip.com/purpose\" } \r\n" + 
+				"      }     \r\n" + 
+				",{    \r\n" + 
+				"        \"@type\":\"ids:Constraint\",  \r\n" + 
+				"        \"ids:leftOperand\": \"ids:event\",  \r\n" + 
+				"        \"ids:operator\": \"idsc:EQ\",  \r\n" + 
+				"        \"ids:rightOperand\": { \"@value\": \"Worldcup\", \"@type\": \"xsd:anyURI\"        }, \r\n" + 
+				"        \"ids:pipEndpoint\": { \"@id\": \"https//pip.com/event\" } \r\n" + 
+				"      }     \r\n" + 
+				",{    \r\n" + 
+				"        \"@type\":\"ids:Constraint\",  \r\n" + 
+				"        \"ids:leftOperand\": \"ids:count\",  \r\n" + 
+				"        \"ids:operator\": \"idsc:LTEQ\",  \r\n" + 
+				"        \"ids:rightOperand\": { \"@value\": \"1\", \"@type\": \"xsd:decimal\"        }, \r\n" + 
+				"        \"ids:pipEndpoint\": { \"@id\": \"https//pip.com/count\" } \r\n" + 
+				"      }     \r\n" + 
+				",{    \r\n" + 
+				"        \"@type\":\"ids:Constraint\",  \r\n" + 
+				"        \"ids:leftOperand\": \"idsc:POLICY_EVALUATION_TIME\",  \r\n" + 
+				"        \"ids:operator\": \"idsc:TEMPORAL_EQUALS\",  \r\n" + 
+				"        \"ids:rightOperand\": { \r\n" + 
+				"         \"@type\": \"ids:interval\", \r\n" + 
+				"         \"@value\": { \r\n" + 
+				"             \"ids:begin\": {\r\n" + 
+				"               \"@value\": \"2021-03-01T00:00:00Z\",\r\n" + 
+				"               \"@type\": \"xsd:datetimeStamp\"\r\n" + 
+				"            }, \r\n" + 
+				"            \"ids:end\": {\r\n" + 
+				"               \"@value\": \"2021-03-01T00:00:00Z\",\r\n" + 
+				"               \"@type\": \"xsd:datetimeStamp\"\r\n" + 
+				"            } \r\n" + 
+				"         } \r\n" + 
+				"        }, \r\n" + 
+				"        \"ids:pipEndpoint\": { \"@id\": \"https//pip.com/policy_evaluation_time\" } \r\n" + 
+				"      }     \r\n" + 
+				"] \r\n" + 
+				"  }] \r\n" + 
+				"} ";
+		Serializer serializer = new Serializer();
+		ContractAgreement ca = serializer.deserialize(contractAgreement, ContractAgreement.class);
+		assertNotNull(ca);
+		
 	}
 
 }

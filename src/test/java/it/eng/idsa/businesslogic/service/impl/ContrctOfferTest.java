@@ -95,14 +95,14 @@ public class ContrctOfferTest {
 		de.fraunhofer.iese.ids.odrl.policy.library.model.Action action = new de.fraunhofer.iese.ids.odrl.policy.library.model.Action(ActionType.USE);
 		r.setAction(action);
 		
-		List<Condition> conditions = new ArrayList<>();
-		RightOperand rightOperand = new RightOperand("2020-10-01T00:00:00Z", RightOperandType.DATETIME);
-		Condition c = createCondition(ConditionType.CONSTRAINT, de.fraunhofer.iese.ids.odrl.policy.library.model.enums.LeftOperand.DATETIME, Operator.EQUALS, rightOperand);
-		conditions.add(c);
+//		List<Condition> conditions = new ArrayList<>();
+//		RightOperand rightOperand = new RightOperand("2020-10-01T00:00:00Z", RightOperandType.DATETIMESTAMP);
+//		Condition c = createCondition(ConditionType.CONSTRAINT, de.fraunhofer.iese.ids.odrl.policy.library.model.enums.LeftOperand.DATETIME, Operator.EQUALS, rightOperand);
+//		conditions.add(c);
 		
-		r.setConstraints(conditions);
+//		r.setConstraints(conditions);
 		rules.add(r);
-		policy.setRules(rules);
+//		policy.setRules(rules);
 
 		System.out.println(policy);
 	}
