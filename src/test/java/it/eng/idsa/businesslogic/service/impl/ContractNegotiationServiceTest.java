@@ -82,7 +82,7 @@ public class ContractNegotiationServiceTest {
 	public void testContractNegotiation() throws IOException {
 //		service.processContractAgreement(contractAgreementMessage, contractAgreement);
 //		String permissionString = MultipartMessageProcessor.serializeToPlainJson(contractAgreement.getPermission());
-//		System.out.println(permissionString); 
+		System.out.println(MultipartMessageProcessor.serializeToJsonLD(interval)); 
 //		String ca = MultipartMessageProcessor.serializeToPlainJson(contractAgreement);
 		String caLD = MultipartMessageProcessor.serializeToJsonLD(contractAgreement);
 		System.out.println(caLD);
