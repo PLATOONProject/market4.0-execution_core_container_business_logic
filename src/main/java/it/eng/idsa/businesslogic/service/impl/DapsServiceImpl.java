@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyFactory;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -21,14 +20,6 @@ import java.security.spec.RSAPublicKeySpec;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -49,7 +40,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import it.eng.idsa.businesslogic.service.DapsService;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -66,7 +56,7 @@ import okhttp3.Response;
 @ConditionalOnProperty(name = "application.dapsVersion", havingValue = "v1")
 @Service
 @Transactional
-public class DapsServiceImpl implements DapsService {
+public class DapsServiceImpl{
 
 	private static final Logger logger = LogManager.getLogger(DapsServiceImpl.class);
 
@@ -92,6 +82,9 @@ public class DapsServiceImpl implements DapsService {
 	private String connectorUUID;
 	@Value("${application.dapsJWKSUrl}")
 	private String dapsJWKSUrl;
+	
+	@Autowired
+	private OkHttpClient client;
   
 	private String getJwTokenInternal() {
 
@@ -100,13 +93,13 @@ public class DapsServiceImpl implements DapsService {
 		Response responseDaps = null;
 		try {
 			logger.debug("Started get JWT token");
-			InputStream jksInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
-			KeyStore store = KeyStore.getInstance("JKS");
-			store.load(jksInputStream, keyStorePassword.toCharArray());
-			// get private key
-			privKey = (PrivateKey) store.getKey(keystoreAliasName, keyStorePassword.toCharArray());
-			// Get certificate of public key
-			setCert(store.getCertificate(keystoreAliasName));
+//			InputStream jksInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
+//			KeyStore store = KeyStore.getInstance("JKS");
+//			store.load(jksInputStream, keyStorePassword.toCharArray());
+//			// get private key
+//			privKey = (PrivateKey) store.getKey(keystoreAliasName, keyStorePassword.toCharArray());
+//			// Get certificate of public key
+//			setCert(store.getCertificate(keystoreAliasName));
 
 			// byte[] encodedPublicKey = publicKey.getEncoded();
 			// String b64PublicKey = Base64.getEncoder().encodeToString(encodedPublicKey);
@@ -130,41 +123,6 @@ public class DapsServiceImpl implements DapsService {
 			 * "\"\":\"" + jws + "\"," + "\"\":\"\"," + "}";
 			 */
 
-			OkHttpClient client = null;
-			final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-				@Override
-				public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
-						throws CertificateException {
-				}
-
-				@Override
-				public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
-						throws CertificateException {
-				}
-
-				@Override
-				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-					return new java.security.cert.X509Certificate[0];
-				}
-			} };
-
-			// Install the all-trusting trust manager
-			final SSLContext sslContext = SSLContext.getInstance("SSL");
-			sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-			// Create an ssl socket factory with our all-trusting manager
-			final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-
-			client = new OkHttpClient.Builder()
-					.connectTimeout(60, TimeUnit.SECONDS)
-					.writeTimeout(60, TimeUnit.SECONDS)
-					.readTimeout(60, TimeUnit.SECONDS)
-					.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
-					.hostnameVerifier(new HostnameVerifier() {
-						@Override
-						public boolean verify(String hostname, SSLSession session) {
-							return true;
-						}
-					}).build();
 			// @formatter:off
 			RequestBody formBody = new FormBody.Builder()
 					.add("grant_type", "client_credentials")
@@ -197,7 +155,7 @@ public class DapsServiceImpl implements DapsService {
 			logger.info("access_token: {}", body);
 
 		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
-				| KeyManagementException | UnrecoverableKeyException e) {
+				| UnrecoverableKeyException e) {
 			logger.error(e);
 			return null;
 		} finally {
