@@ -27,9 +27,9 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.Meta;
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.TargetArtifact;
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.UsageControlObject;
+//import de.fraunhofer.dataspaces.iese.camel.interceptor.model.Meta;
+//import de.fraunhofer.dataspaces.iese.camel.interceptor.model.TargetArtifact;
+//import de.fraunhofer.dataspaces.iese.camel.interceptor.model.UsageControlObject;
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
@@ -145,7 +145,7 @@ public class ReceiverUsageControlProcessor implements Processor {
 
 
     private String createUsageControlObject(URI targetId, String payload) throws URISyntaxException {
-        UsageControlObject usageControlObject = new UsageControlObject();
+       /* UsageControlObject usageControlObject = new UsageControlObject();
         JsonElement jsonElement = gson.fromJson(createJsonPayload(payload), JsonElement.class);
         usageControlObject.setPayload(jsonElement);
         Meta meta = new Meta();
@@ -159,7 +159,8 @@ public class ReceiverUsageControlProcessor implements Processor {
         meta.setTargetArtifact(targetArtifact);
         usageControlObject.setMeta(meta);
         String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObject.class);
-        return usageControlObjectPayload;
+        return usageControlObjectPayload;*/
+        return payload;
     }
 
     private String createJsonPayload(String payload) {

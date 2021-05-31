@@ -17,10 +17,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.LinkedTreeMap;
 
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.IdsMsgTarget;
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.IdsUseObject;
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.UsageControlObject;
-import de.fraunhofer.dataspaces.iese.camel.interceptor.service.UcService;
+//import de.fraunhofer.dataspaces.iese.camel.interceptor.model.IdsMsgTarget;
+//import de.fraunhofer.dataspaces.iese.camel.interceptor.model.IdsUseObject;
+//import de.fraunhofer.dataspaces.iese.camel.interceptor.model.UsageControlObject;
+//import de.fraunhofer.dataspaces.iese.camel.interceptor.service.UcService;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
@@ -43,9 +43,9 @@ public class SenderUsageControlProcessor implements Processor {
     @Value("${application.isEnabledUsageControl:false}")
     private boolean isEnabledUsageControl;
 
-    @Autowired
-    private UcService ucService;
-
+   // @Autowired
+   // private UcService ucService;
+    
     @Autowired
     private RejectionMessageService rejectionMessageService;
 
@@ -85,18 +85,20 @@ public class SenderUsageControlProcessor implements Processor {
             logger.debug("Message Body: " + payload);
 
             JsonElement transferedDataObject = getDataObject(payload);
-            UsageControlObject ucObj = gson.fromJson(transferedDataObject, UsageControlObject.class);
+            
+            logger.info("transferedObject"+message.toString());
+          // UsageControlObject ucObj = gson.fromJson(transferedDataObject, UsageControlObject.class);
             boolean isUsageControlObject = true;
 
-            if (isUsageControlObject
-                    && null != ucObj
-                    && null != ucObj.getMeta()
-                    && null != ucObj.getPayload()) {
+            if ( null != transferedDataObject) {
             	logger.info("Proceeding with Usage control enforcement");
-                String targetArtifactId = ucObj.getMeta().getTargetArtifact().getId().toString();
-                IdsMsgTarget idsMsgTarget = getIdsMsgTarget();
-                if (null != ucObj.getPayload() && !(CachedOutputStream.class.equals(ucObj.getPayload().getClass().getEnclosingClass()))) {
-                    logger.debug("Message Body In: " + ucObj.getPayload().toString());
+              //  String targetArtifactId = ucObj.getMeta().getTargetArtifact().getId().toString();
+            //    IdsMsgTarget idsMsgTarget = getIdsMsgTarget();
+                               	
+                	//TODO UC SERVICE invocation for enforcement
+                	
+                	
+                   /* logger.debug("Message Body In: " + ucObj.getPayload().toString());
 
                     IdsUseObject idsUseObject = new IdsUseObject();
                     idsUseObject.setTargetDataUri(targetArtifactId);
@@ -111,13 +113,13 @@ public class SenderUsageControlProcessor implements Processor {
                         logger.debug("Result from Usage Control: " + jsonElement.toString());
                     } else if (null == result || StringUtils.isEmpty(result.toString())) {
                         throw new Exception("Usage Control Enforcement with EMPTY RESULT encountered.");
-                    }
+                    }*/
                     // Prepare Response
                      multipartMessageResponse = new MultipartMessageBuilder()
                             .withHeaderContent(message)
-                            .withPayloadContent(extractPayloadFromJson(ucObj.getPayload()))
+                            .withPayloadContent(payload/*to change with result from UC service*/)
                             .build();
-                }
+                
             }
             else {
             	logger.info("Usage Control not applied - not ArtifactRequestMessage/ArtifactResponseMessage");
@@ -145,13 +147,13 @@ public class SenderUsageControlProcessor implements Processor {
       		IdsMsgTarget.appUri is translated to msgTargetAppUri
      * @return
      */
-    public static IdsMsgTarget getIdsMsgTarget() {
+  /*  public static IdsMsgTarget getIdsMsgTarget() {
         IdsMsgTarget idsMsgTarget = new IdsMsgTarget();
         idsMsgTarget.setName("Anwendung A");
         // idsMsgTarget.setAppUri(target.toString());
         idsMsgTarget.setAppUri("http://ziel-app");
         return idsMsgTarget;
-    }
+    }*/
 
     private JsonElement getDataObject(String s) {
         JsonElement obj = null;

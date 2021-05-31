@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import de.fhg.aisec.ids.comm.server.IdscpServerSocket;
-import de.fhg.aisec.ids.comm.server.SocketListener;
+//import de.fhg.aisec.ids.comm.server.IdscpServerSocket;
+//import de.fhg.aisec.ids.comm.server.SocketListener;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
 
 /**
