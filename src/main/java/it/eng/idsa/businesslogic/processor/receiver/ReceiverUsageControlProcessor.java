@@ -32,9 +32,11 @@ import com.google.gson.stream.JsonWriter;
 //import de.fraunhofer.dataspaces.iese.camel.interceptor.model.UsageControlObject;
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.UsageControlObjectImpl;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.businesslogic.util.UsageControlObjectToEnforce;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -145,22 +147,16 @@ public class ReceiverUsageControlProcessor implements Processor {
 
 
     private String createUsageControlObject(URI targetId, String payload) throws URISyntaxException {
-       /* UsageControlObject usageControlObject = new UsageControlObject();
-        JsonElement jsonElement = gson.fromJson(createJsonPayload(payload), JsonElement.class);
-        usageControlObject.setPayload(jsonElement);
-        Meta meta = new Meta();
-        meta.setAssignee(requestMessage.getIssuerConnector());
-        meta.setAssigner(responseMessage.getIssuerConnector());
-        TargetArtifact targetArtifact = new TargetArtifact();
-        LocalDateTime localDateTime = LocalDateTime.now();
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("CET"));
-        targetArtifact.setCreationDate(zonedDateTime);
-        targetArtifact.setId(targetId);
-        meta.setTargetArtifact(targetArtifact);
-        usageControlObject.setMeta(meta);
-        String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObject.class);
-        return usageControlObjectPayload;*/
-        return payload;
+        UsageControlObjectToEnforce usageControlObject = new UsageControlObjectToEnforce();
+        usageControlObject.setPayload(payload);
+        usageControlObject.setAssignee(requestMessage.getIssuerConnector());
+        usageControlObject.setAssigner(responseMessage.getIssuerConnector());
+        usageControlObject.setTargetArtifactId(targetId);
+                    
+        String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObjectToEnforce.class);
+                
+        return usageControlObjectPayload;
+       
     }
 
     private String createJsonPayload(String payload) {
