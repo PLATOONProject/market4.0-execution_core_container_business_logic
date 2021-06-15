@@ -27,11 +27,11 @@ import de.fraunhofer.iais.eis.LogMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
-import it.eng.idsa.businesslogic.service.HashFileService;
+//import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import it.eng.idsa.clearinghouse.model.Body;
-import it.eng.idsa.clearinghouse.model.NotificationContent;
+//import it.eng.idsa.clearinghouse.model.Body;
+//import it.eng.idsa.clearinghouse.model.NotificationContent;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
@@ -55,17 +55,15 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@Autowired
-	private HashFileService hashService;
-
+	
 	@Autowired
 	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 
 	@Override
 	public boolean registerTransaction(Message correlatedMessage, String payload) {
 
-		boolean success = false;
-		try {
+		boolean success = true;
+		/*try {
 			logger.info("registerTransaction...");
 			String endpoint = configuration.getClearingHouseUrl();
 			// Create Message for Clearing House
@@ -102,7 +100,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			logger.error("Could not register the following message to clearing house:", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					correlatedMessage);
-		}
+		}*/
 
 		return success;
 	}
