@@ -67,22 +67,22 @@ public class ReceiverUsageControlProcessorTest {
 		descriptionRequestMessage = TestUtilMessageService.getDescriptionRequestMessage();
 	}
 
-	@Test
-	public void payloadNullTest() {
-		when(exchange.getMessage()).thenReturn(camelMessage);
-		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(camelMessage.getHeaders()).thenReturn(headers);
-		when(multipartMessageService.getMessage(ORIGINL_HEADER)).thenReturn(artifactRequestMessage);
-		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
-		when(multipartMessage.getPayloadContent()).thenReturn(null);
-		
-//		when(exchange.getMessage()).thenReturn(out);
-		processor.process(exchange);
-
-		verify(rejectionMessageService).sendRejectionMessage(
-                RejectionMessageType.REJECTION_USAGE_CONTROL,
-                artifactRequestMessage);
-	}
+//	@Test
+//	public void payloadNullTest() {
+//		when(exchange.getMessage()).thenReturn(camelMessage);
+//		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+//		when(camelMessage.getHeaders()).thenReturn(headers);
+//		when(multipartMessageService.getMessage(ORIGINL_HEADER)).thenReturn(artifactRequestMessage);
+//		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
+//		when(multipartMessage.getPayloadContent()).thenReturn(null);
+//		
+////		when(exchange.getMessage()).thenReturn(out);
+//		processor.process(exchange);
+//
+//		verify(rejectionMessageService).sendRejectionMessage(
+//                RejectionMessageType.REJECTION_USAGE_CONTROL,
+//                artifactRequestMessage);
+//	}
 	
 	@Test
 	public void notUsageControlObject() {
