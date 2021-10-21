@@ -15,6 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,9 +51,12 @@ public class SenderUsageControlProcessor implements Processor {
 
 	@Value("${application.isEnabledUsageControl:false}")
 	private boolean isEnabledUsageControl;
-	
+
 	@Value("${spring.ids.ucapp.baseUrl}")
 	private String ucBaseUrl;
+
+	@Autowired
+	private OAuth2RestTemplate oAuth2RestTemplate;
 
 	// @Autowired
 	// private UcService ucService;
@@ -118,16 +122,18 @@ public class SenderUsageControlProcessor implements Processor {
 				logger.info("artifactID:" + ucObj.getTargetArtifactId());
 
 				// UC SERVICE invocation for enforcement
-				String ucUrl = ucBaseUrl+"/platoontec/PlatoonDataUsage/1.0/enforce/usage/use?targetDataUri="
+				String ucUrl = ucBaseUrl + "/platoontec/PlatoonDataUsage/1.0/enforce/usage/use?targetDataUri="
 						+ ucObj.getTargetArtifactId() + "&providerUri=" + receiver + "&consumerUri=" + sender
 						+ "&consuming=true";
-				RestTemplate restTemplate = new RestTemplate();
+//				RestTemplate restTemplate = new RestTemplate();
+
 				HttpHeaders headers = new HttpHeaders();
 				headers.setContentType(MediaType.APPLICATION_JSON);
 
 				HttpEntity<String> request = new HttpEntity<String>(ucObj.getPayload(), headers);
 
-				String objectToEnforceAsJsonStr = restTemplate.postForObject(ucUrl, request, String.class);
+				String objectToEnforceAsJsonStr = oAuth2RestTemplate.postForObject(ucUrl, request, String.class);
+
 				// Prepare Response
 				multipartMessageResponse = new MultipartMessageBuilder().withHeaderContent(message)
 						.withPayloadContent(objectToEnforceAsJsonStr).build();
